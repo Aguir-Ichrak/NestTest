@@ -47,7 +47,11 @@ export class BlogsController {
 
   @Get()
   getBlogs() {
-    return this.blogsService.getsBlogs();
+    try {
+      return this.blogsService.getsBlogs();
+    } catch (error) {
+      throw new HttpException('Error fetching blogs', 500);
+    }
   }
 
   @Get(':id')
