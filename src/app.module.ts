@@ -1,12 +1,22 @@
 import { Module } from '@nestjs/common';
+import { BlogsModule } from './blogs/blogs.module';
+import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from './users/users.module';
-import { PostsModule } from './posts/posts.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://127.0.0.1/nestjs_tutorial'),
-    UsersModule,
-    PostsModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRootAsync({
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('DATABASE_URL'),
+      }),
+      inject: [ConfigService],
+    }),
+    BlogsModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
