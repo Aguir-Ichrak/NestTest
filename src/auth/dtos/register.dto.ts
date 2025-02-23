@@ -5,7 +5,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { Role } from 'src/global.const';
+import { Role } from '../../global.const';
 
 export class RegisterDto {
   @IsNotEmpty()

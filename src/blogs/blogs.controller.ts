@@ -11,12 +11,13 @@ import {
   UploadedFile,
   Req,
   UseInterceptors,
+  UnauthorizedException,
 } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { CreateBlogDto } from './dtos/CreateBlog.dto';
 import { BlogsService } from './blogs.service';
 import { UpdateBlogDto } from './dtos/UpdateBlog.dto';
-import { AuthGuard } from 'src/auth/auth.middleware';
+import { AuthGuard } from '../auth/auth.middleware';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Request } from 'express';
@@ -41,8 +42,20 @@ export class BlogsController {
     @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
   ) {
+    if (!req.user || !req.user._doc._id) {
+      throw new UnauthorizedException('User not authenticated');
+    }
     if (file) createBlogDto.image = `/uploads/${file.filename}`;
-    return this.blogsService.createBlog(createBlogDto, req.user._doc._id);
+    const createdBlog = await this.blogsService.createBlog(
+      createBlogDto,
+      req.user._doc._id,
+    );
+
+    return {
+      message: 'Blog created successfully',
+      blog: createdBlog,
+      userId: req.user._doc._id,
+    };
   }
 
   @Get()
@@ -73,8 +86,10 @@ export class BlogsController {
     if (!isValid) throw new HttpException('Invalid ID', 400);
     const updatedBlog = await this.blogsService.updateBlog(id, updateBlogDto);
     if (!updatedBlog) throw new HttpException('Blog Not Found', 404);
-
-    return updatedBlog;
+    return {
+      message: 'Blog created successfully',
+      blog: updatedBlog,
+    };
   }
 
   @UseGuards(AuthGuard)
@@ -84,6 +99,6 @@ export class BlogsController {
     if (!isValid) throw new HttpException('Invalid ID', 400);
     const deletedBlog = await this.blogsService.deleteBlog(id);
     if (!deletedBlog) throw new HttpException('Blog Not Found', 404);
-    return { message: 'blog deleted successfully' };
+    return { message: 'Blog deleted successfully' };
   }
 }

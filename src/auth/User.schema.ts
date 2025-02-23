@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
-import { Role } from 'src/global.const';
+import { Role } from '../global.const';
 
 export type UserDocument = User & Document;
 

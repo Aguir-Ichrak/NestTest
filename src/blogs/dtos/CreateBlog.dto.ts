@@ -6,7 +6,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { Category } from 'src/global.const';
+import { Category } from '../../global.const';
 
 export class CreateBlogDto {
   @IsNotEmpty()

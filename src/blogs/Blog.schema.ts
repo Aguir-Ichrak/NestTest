@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Category } from 'src/global.const';
+import { Category } from '../global.const';
 export type BlogDocument = Blog & Document;
 
 @Schema({ timestamps: true })
