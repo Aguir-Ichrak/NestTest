@@ -12,6 +12,8 @@ import {
   Req,
   UseInterceptors,
   UnauthorizedException,
+  Put,
+  HttpStatus,
 } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { CreateBlogDto } from './dtos/CreateBlog.dto';
@@ -77,17 +79,26 @@ export class BlogsController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch(':id')
+  @Put(':id')
+  @UseInterceptors(FileInterceptor('image'))
   async updateBlog(
     @Param('id') id: string,
-    @Body() updateBlogDto: UpdateBlogDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
   ) {
+    const updateBlogDto = req.body;
+
     const isValid = mongoose.Types.ObjectId.isValid(id);
-    if (!isValid) throw new HttpException('Invalid ID', 400);
+    if (!isValid) throw new HttpException('Invalid ID', HttpStatus.BAD_REQUEST);
+
+    if (file) updateBlogDto.image = `/uploads/${file.filename}`;
+
     const updatedBlog = await this.blogsService.updateBlog(id, updateBlogDto);
-    if (!updatedBlog) throw new HttpException('Blog Not Found', 404);
+    if (!updatedBlog)
+      throw new HttpException('Blog Not Found', HttpStatus.NOT_FOUND);
+
     return {
-      message: 'Blog created successfully',
+      message: 'Blog updated successfully',
       blog: updatedBlog,
     };
   }
