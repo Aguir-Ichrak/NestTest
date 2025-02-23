@@ -87,8 +87,6 @@ describe('AuthController (E2E)', () => {
       .post('/auth/login')
       .send(loginDto);
 
-    console.log('status', response.status);
-    console.log('body', response.body);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(response.body.message).toContain('Invalid Password');
   });
