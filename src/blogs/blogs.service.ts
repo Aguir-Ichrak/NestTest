@@ -14,8 +14,30 @@ export class BlogsService {
     const savedBlog = await newBlog.save();
     return savedBlog;
   }
-  getsBlogs() {
-    return this.blogModel.find();
+
+  async getBlogs(search?: string, page: number = 1, limit: number = 9) {
+    try {
+      const searchQuery = search
+        ? { title: { $regex: search, $options: 'i' } }
+        : {};
+      const skip = (page - 1) * limit;
+
+      const blogs = await this.blogModel
+        .find(searchQuery)
+        .skip(skip)
+        .limit(limit)
+        .exec();
+      const totalBlogs = await this.blogModel.countDocuments(searchQuery);
+
+      return {
+        blogs,
+        totalBlogs,
+        totalPages: Math.ceil(totalBlogs / limit),
+        currentPage: page,
+      };
+    } catch (error) {
+      throw new Error('Server Error');
+    }
   }
 
   getBlogById(id: string) {
