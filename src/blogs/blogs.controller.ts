@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   HttpException,
-  Patch,
   Delete,
   UseGuards,
   UploadedFile,
@@ -14,11 +13,11 @@ import {
   UnauthorizedException,
   Put,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { CreateBlogDto } from './dtos/CreateBlog.dto';
 import { BlogsService } from './blogs.service';
-import { UpdateBlogDto } from './dtos/UpdateBlog.dto';
 import { AuthGuard } from '../auth/auth.middleware';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -61,16 +60,20 @@ export class BlogsController {
   }
 
   @Get()
-  getBlogs() {
+  getBlogs(
+    @Query('search') search?: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 9,
+  ) {
     try {
-      return this.blogsService.getsBlogs();
+      return this.blogsService.getBlogs(search, Number(page), Number(limit));
     } catch (error) {
       throw new HttpException('Error fetching blogs', 500);
     }
   }
 
   @Get(':id')
-  async getBlogByUser(@Param('id') id: string) {
+  async getBlogById(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new HttpException('Blog not found', 404);
     const findBlog = await this.blogsService.getBlogById(id);
