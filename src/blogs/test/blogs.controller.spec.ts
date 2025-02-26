@@ -77,7 +77,7 @@ describe('BlogsController', () => {
         const blog = { title: 'Test Blog', content: 'This is a test blog.' };
         const id = new Types.ObjectId().toString();
         blogService.getBlogById = jest.fn().mockResolvedValue(blog);
-        await blogController.getBlogByUser(id);
+        await blogController.getBlogById(id);
         expect(blogService.getBlogById).toHaveBeenCalledWith(id);
       });
     });
